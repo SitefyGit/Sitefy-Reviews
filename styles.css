@@ -119,6 +119,15 @@ body {
     z-index: 1000;
 }
 
+/* Make tall dropdowns scrollable */
+.dropdown-menu,
+.mega-dropdown .mega-menu {
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
 .nav-item:hover .dropdown-menu {
     opacity: 1;
     visibility: visible;
