@@ -8,10 +8,34 @@ hamburger.addEventListener('click', () => {
 });
 
 // Close mobile menu when clicking on a link
-document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
-    hamburger.classList.remove('active');
-    navMenu.classList.remove('active');
-}));
+// Also handle submenus on mobile
+const navLinks = document.querySelectorAll('.nav-link');
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        const parentItem = link.closest('.nav-item');
+        const hasSubmenu = parentItem && (parentItem.querySelector('.dropdown-menu') || parentItem.querySelector('.mega-menu'));
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+        if (isMobile && hasSubmenu) {
+            // Toggle submenu instead of navigating
+            e.preventDefault();
+            parentItem.classList.toggle('open');
+            return;
+        }
+
+        // If normal link (no submenu) close the menu
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+    });
+});
+
+// Close menu when clicking outside (mobile)
+document.addEventListener('click', (e) => {
+    const isClickInside = e.target.closest('.navbar');
+    if (!isClickInside) {
+        document.querySelectorAll('.nav-item.open').forEach(item => item.classList.remove('open'));
+    }
+});
 
 // Review Type Toggle
 const reviewTypeInputs = document.querySelectorAll('input[name="reviewType"]');

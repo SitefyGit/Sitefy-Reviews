@@ -672,10 +672,13 @@ body {
         flex-direction: column;
         background-color: white;
         width: 100%;
-        text-align: center;
+        text-align: left;
         transition: 0.3s;
         box-shadow: 0 10px 27px rgba(0,0,0,0.05);
-        padding: 2rem 0;
+        padding: 0.75rem 1rem 1rem;
+        z-index: 2000; /* ensure on top */
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
     }
 
     .nav-menu.active {
@@ -683,34 +686,41 @@ body {
     }
 
     .nav-item {
-        margin: 1rem 0;
+        margin: 0.25rem 0;
     }
 
-        .dropdown-menu {
-            position: static;
-            opacity: 1;
-            visibility: visible;
-            transform: none;
-            box-shadow: none;
-            background: var(--light-gray);
-            margin-top: 1rem;
-        }
+    /* Mobile collapsible submenus: hidden by default */
+    .dropdown-menu,
+    .mega-dropdown .mega-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: var(--light-gray);
+        margin-top: 0.25rem;
+        display: none; /* hide until expanded */
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+    }
 
-        .mega-dropdown .mega-menu {
-            position: static;
-            opacity: 1;
-            visibility: visible;
-            transform: none;
-            box-shadow: none;
-            background: var(--light-gray);
-            margin-top: 1rem;
-            min-width: auto;
-            max-width: none;
-        }
+    /* When parent item is opened */
+    .nav-item.open > .dropdown-menu,
+    .nav-item.open > .mega-menu {
+        display: block;
+    }
 
-        .mega-menu-content {
-            grid-template-columns: 1fr;
-        }    .hero-section h1 {
+    .mega-menu-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .nav-link {
+        justify-content: space-between;
+        padding: 0.6rem 0.25rem;
+    }
+
+    .hero-section h1 {
         font-size: 2rem;
     }
 
