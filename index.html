@@ -283,14 +283,28 @@
 
                         <!-- Video Review -->
                         <div class="form-group" id="videoReviewSection" style="display: none;">
-                            <label for="videoUpload">Upload Video Review (Max 1 minute)</label>
+                            <label for="videoUpload">Upload or Record Video Review (Max 1 minute)</label>
                             <div class="video-upload-area">
-                                <input type="file" id="videoUpload" name="videoUpload" accept="video/*" style="display: none;">
+                                <input type="file" id="videoUpload" name="videoUpload" accept="video/*" capture="user" style="display: none;">
                                 <div class="upload-placeholder" onclick="document.getElementById('videoUpload').click()">
                                     <i class="fas fa-cloud-upload-alt"></i>
                                     <p>Click to upload your video review</p>
                                     <span>Max duration: 1 minute | Max size: 50MB</span>
                                 </div>
+
+                                <!-- New: Record from camera -->
+                                <div class="record-controls" id="recordControls">
+                                    <div class="record-header">
+                                        <button type="button" id="startRecordBtn"><i class="fas fa-circle"></i> Start Recording</button>
+                                        <button type="button" id="stopRecordBtn" disabled><i class="fas fa-square"></i> Stop</button>
+                                        <span class="record-timer" id="recordTimer">00:00</span>
+                                    </div>
+                                    <div class="record-preview">
+                                        <video id="recorderPreview" autoplay muted playsinline></video>
+                                    </div>
+                                    <small class="record-hint">Max 1 minute. After stop, the recording attaches automatically and shows in Preview.</small>
+                                </div>
+
                                 <div class="video-preview" id="videoPreview" style="display: none;">
                                     <video controls></video>
                                     <button type="button" onclick="removeVideo()">Remove Video</button>

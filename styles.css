@@ -563,6 +563,67 @@ body {
     line-height: 1.6;
 }
 
+/* Record Controls Styles */
+.record-controls {
+    margin-top: 0.75rem;
+    background: #f9fafb;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.75rem;
+}
+
+.record-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.record-header button {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.record-header button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.record-header #startRecordBtn {
+    background: #dc2626;
+}
+
+.record-header #stopRecordBtn {
+    background: #374151;
+}
+
+.record-timer {
+    margin-left: auto;
+    font-weight: bold;
+    color: #ef4444;
+}
+
+.record-preview {
+    margin-top: 0.5rem;
+}
+
+#recorderPreview {
+    width: 100%;
+    max-height: 260px;
+    border-radius: 8px;
+    background: #000;
+}
+
+.record-hint {
+    display: block;
+    color: #6b7280;
+    margin-top: 0.4rem;
+}
+
 /* Footer Styles */
 .main-footer {
     background: var(--primary-color);

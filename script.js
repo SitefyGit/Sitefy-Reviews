@@ -575,3 +575,73 @@ function escapeHtml(text) {
     };
     return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
+
+// In-browser video recording using MediaRecorder
+let mediaStream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordTimerInterval = null;
+let elapsedSec = 0;
+
+const startBtn = document.getElementById('startRecordBtn');
+const stopBtn = document.getElementById('stopRecordBtn');
+const recorderPreview = document.getElementById('recorderPreview');
+
+function fmt(t){ const m = String(Math.floor(t/60)).padStart(2,'0'); const s = String(t%60).padStart(2,'0'); return `${m}:${s}`; }
+function setTimer(t){ const el = document.getElementById('recordTimer'); if(el) el.textContent = fmt(t); }
+
+async function startRecording(){
+    try {
+        recordedChunks = [];
+        elapsedSec = 0;
+        setTimer(0);
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        recorderPreview.srcObject = mediaStream;
+        const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+        mediaRecorder = new MediaRecorder(mediaStream, { mimeType: mime });
+        mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+        mediaRecorder.onstop = handleRecordingStop;
+        mediaRecorder.start();
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        recordTimerInterval = setInterval(() => {
+            elapsedSec += 1;
+            setTimer(elapsedSec);
+            if (elapsedSec >= 60) stopRecording();
+        }, 1000);
+    } catch (err) {
+        alert('Camera/microphone access denied or unavailable.');
+        console.error(err);
+    }
+}
+
+function stopRecording(){
+    try { mediaRecorder && mediaRecorder.state !== 'inactive' && mediaRecorder.stop(); } catch {}
+    stopBtn.disabled = true;
+    startBtn.disabled = false;
+    clearInterval(recordTimerInterval);
+    recordTimerInterval = null;
+    setTimer(0);
+    if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+}
+
+async function handleRecordingStop(){
+    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    // Build a File from blob and attach to the hidden file input
+    const file = new File([blob], `review-${Date.now()}.webm`, { type: 'video/webm' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    videoUpload.files = dataTransfer.files;
+
+    // Show in preview
+    const url = URL.createObjectURL(blob);
+    const video = videoPreview.querySelector('video');
+    video.src = url;
+    uploadPlaceholder.style.display = 'none';
+    videoPreview.style.display = 'block';
+}
+
+if (startBtn && stopBtn) {
+    startBtn.addEventListener('click', startRecording);
+    stopBtn.addEventListener('click', stopRecording);
+}
