@@ -210,9 +210,9 @@
                 </div>
             </button>
 
-            <div class="advanced" id="advContent">
-                <div class="advanced-toggle" id="advToggle"><i class="fas fa-cog"></i> Advanced options</div>
-                <div class="advanced-content">
+            <div class="advanced" id="advancedWrapper">
+                <div class="advanced-toggle" id="advancedToggle"><i class="fas fa-cog"></i> Advanced options</div>
+                <div class="advanced-content" id="advancedContent" style="display:none;">
                     <label style="display:block; margin: 0.4rem 0 0.2rem;">Admin API Token (optional)</label>
                     <input type="text" id="adminApiToken" placeholder="Paste ADMIN_DASHBOARD_TOKEN (production)">
                 </div>
@@ -233,23 +233,26 @@
 
     <script src="admin-auth.js"></script>
     <script>
-        // Inject advanced token UI under the form button
-        (function addAdvancedTokenField(){
-            const form = document.getElementById('loginForm');
-            const advanced = document.createElement('div');
-            advanced.className = 'advanced';
-            advanced.innerHTML = `
-                <div class="advanced-toggle" id="advToggle"><i class="fas fa-cog"></i> Advanced options</div>
-                <div class="advanced-content" id="advContent">
-                    <label style="display:block; margin: 0.4rem 0 0.2rem;">Admin API Token (optional)</label>
-                    <input type="text" id="adminApiToken" placeholder="Paste ADMIN_DASHBOARD_TOKEN (production)">
-                </div>`;
-            form.appendChild(advanced);
-            document.getElementById('advToggle').addEventListener('click',()=>{
-                const c = document.getElementById('advContent');
-                c.style.display = (c.style.display === 'block') ? 'none' : 'block';
-            });
+        // Toggle advanced content
+        document.getElementById('advancedToggle').addEventListener('click', () => {
+            const c = document.getElementById('advancedContent');
+            c.style.display = (c.style.display === 'block') ? 'none' : 'block';
+        });
+
+        // Prefill token if saved
+        (function prefillToken(){
+            const saved = localStorage.getItem('sitefy_admin_api_token');
+            if (saved) {
+                document.getElementById('adminApiToken').value = saved;
+            }
         })();
+
+        // Persist token on change
+        document.getElementById('adminApiToken').addEventListener('change', (e) => {
+            const v = (e.target.value || '').trim();
+            if (v) localStorage.setItem('sitefy_admin_api_token', v);
+            else localStorage.removeItem('sitefy_admin_api_token');
+        });
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -283,11 +286,7 @@
                 if (result.success) {
                     successMessage.textContent = 'Login successful! Redirecting to admin panel...';
                     successMessage.style.display = 'block';
-                    
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        window.location.href = 'admin.html';
-                    }, 1500);
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1200);
                 } else {
                     errorMessage.textContent = result.message || 'Invalid credentials. Please try again.';
                     errorMessage.style.display = 'block';
@@ -296,19 +295,16 @@
                 errorMessage.textContent = 'Login failed. Please try again.';
                 errorMessage.style.display = 'block';
             } finally {
-                // Reset button state
                 loginBtn.disabled = false;
                 loginText.style.display = 'inline';
                 loading.style.display = 'none';
             }
         });
 
-        // Check if already logged in
         if (adminAuth.isAuthenticated()) {
             window.location.href = 'admin.html';
         }
 
-        // Auto-focus email field
         document.getElementById('email').focus();
     </script>
 </body>
