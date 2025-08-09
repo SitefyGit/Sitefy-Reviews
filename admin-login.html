@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Admin Login - Sitefy Reviews</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-header {
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(0, 182, 117, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            background: #009960;
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .back-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--secondary-color);
+        }
+
+        .security-notice {
+            background: #f0f9f4;
+            border: 1px solid var(--secondary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #065f46;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .loading .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .advanced {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+        .advanced-toggle { cursor: pointer; color: var(--primary-color); }
+        .advanced-content { display: none; margin-top: 0.5rem; }
+        .advanced input { width: 100%; padding: 0.6rem; border: 1px solid #e5e7eb; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-shield-alt"></i> Admin Login</h1>
+            <p>Sitefy Reviews Admin Panel</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Admin Email
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    required 
+                    placeholder="admin@sitefy.co"
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    required 
+                    placeholder="Enter admin password"
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span id="loginText">Login to Admin Panel</span>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span>Authenticating...</span>
+                </div>
+            </button>
+
+            <div class="advanced" id="advContent">
+                <div class="advanced-toggle" id="advToggle"><i class="fas fa-cog"></i> Advanced options</div>
+                <div class="advanced-content">
+                    <label style="display:block; margin: 0.4rem 0 0.2rem;">Admin API Token (optional)</label>
+                    <input type="text" id="adminApiToken" placeholder="Paste ADMIN_DASHBOARD_TOKEN (production)">
+                </div>
+            </div>
+        </form>
+
+        <div class="security-notice">
+            <i class="fas fa-info-circle"></i>
+            <strong>Security Notice:</strong> This is a restricted admin area. All access attempts are logged and monitored.
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <a href="index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Reviews
+            </a>
+        </div>
+    </div>
+
+    <script src="admin-auth.js"></script>
+    <script>
+        // Inject advanced token UI under the form button
+        (function addAdvancedTokenField(){
+            const form = document.getElementById('loginForm');
+            const advanced = document.createElement('div');
+            advanced.className = 'advanced';
+            advanced.innerHTML = `
+                <div class="advanced-toggle" id="advToggle"><i class="fas fa-cog"></i> Advanced options</div>
+                <div class="advanced-content" id="advContent">
+                    <label style="display:block; margin: 0.4rem 0 0.2rem;">Admin API Token (optional)</label>
+                    <input type="text" id="adminApiToken" placeholder="Paste ADMIN_DASHBOARD_TOKEN (production)">
+                </div>`;
+            form.appendChild(advanced);
+            document.getElementById('advToggle').addEventListener('click',()=>{
+                const c = document.getElementById('advContent');
+                c.style.display = (c.style.display === 'block') ? 'none' : 'block';
+            });
+        })();
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const token = document.getElementById('adminApiToken').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+            // Clear previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loginText.style.display = 'none';
+            loading.style.display = 'flex';
+
+            try {
+                // Store optional admin API token BEFORE calling login
+                if (token) {
+                    localStorage.setItem('sitefy_admin_api_token', token);
+                }
+
+                const result = await adminAuth.login(email, password);
+                
+                if (result.success) {
+                    successMessage.textContent = 'Login successful! Redirecting to admin panel...';
+                    successMessage.style.display = 'block';
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else {
+                    errorMessage.textContent = result.message || 'Invalid credentials. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Login failed. Please try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                loginText.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        });
+
+        // Check if already logged in
+        if (adminAuth.isAuthenticated()) {
+            window.location.href = 'admin.html';
+        }
+
+        // Auto-focus email field
+        document.getElementById('email').focus();
+    </script>
+</body>
+</html>

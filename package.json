@@ -1,0 +1,25 @@
+{
+  "name": "sitefy-reviews",
+  "version": "1.0.0",
+  "description": "Sitefy Reviews Page with Supabase Backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "echo 'Build completed'",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["reviews", "supabase", "vercel", "sitefy"],
+  "author": "Sitefy Team",
+  "license": "MIT"
+}

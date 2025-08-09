@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 1rem; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Backend Connection Diagnostic Tool</h1>
+        <p>This tool will help diagnose connection issues with your Sitefy Reviews backend.</p>
+        
+        <button onclick="runAllTests()">🚀 Run All Tests</button>
+        <button onclick="clearResults()">🗑️ Clear Results</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let testResults = [];
+
+        async function runAllTests() {
+            clearResults();
+            addResult('info', '🔄 Starting diagnostic tests...');
+            
+            await testHealth();
+            await testReviewsEndpoint();
+            await testCORS();
+            await testEnvironment();
+            
+            addResult('info', '✅ All tests completed. Check results above.');
+        }
+
+        async function testHealth() {
+            addResult('info', '1️⃣ Testing health endpoint...');
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('success', `✅ Health check passed: ${JSON.stringify(data)}`);
+                } else {
+                    addResult('error', `❌ Health check failed: HTTP ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                addResult('error', `❌ Health check error: ${error.message}`);
+                addResult('info', '💡 This suggests the backend server is not running or not accessible.');
+            }
+        }
+
+        async function testReviewsEndpoint() {
+            addResult('info', '2️⃣ Testing reviews endpoint...');
+            try {
+                const response = await fetch('/api/admin/reviews');
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('success', `✅ Reviews endpoint working: Found ${data.data?.length || 0} reviews`);
+                } else {
+                    addResult('error', `❌ Reviews endpoint failed: HTTP ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                addResult('error', `❌ Reviews endpoint error: ${error.message}`);
+            }
+        }
+
+        async function testCORS() {
+            addResult('info', '3️⃣ Testing CORS configuration...');
+            try {
+                const response = await fetch('/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                addResult('success', '✅ CORS configuration appears to be working');
+            } catch (error) {
+                if (error.message.includes('CORS')) {
+                    addResult('error', `❌ CORS error detected: ${error.message}`);
+                } else {
+                    addResult('info', '🤔 CORS test inconclusive');
+                }
+            }
+        }
+
+        async function testEnvironment() {
+            addResult('info', '4️⃣ Testing environment detection...');
+            
+            const currentURL = window.location.href;
+            addResult('info', `📍 Current URL: ${currentURL}`);
+            
+            if (currentURL.includes('localhost')) {
+                addResult('info', '🏠 Running on localhost - make sure backend server is started with: npm start');
+            } else if (currentURL.includes('vercel.app') || currentURL.includes('.com')) {
+                addResult('info', '🌐 Running on deployed environment - check Vercel logs');
+            }
+            
+            addResult('info', '🔧 Common solutions:');
+            addResult('info', '• Local: Run "npm start" in terminal');
+            addResult('info', '• Deployed: Check Vercel environment variables');
+            addResult('info', '• Database: Verify Supabase connection');
+        }
+
+        function addResult(type, message) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+            
+            // Auto-scroll to bottom
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>

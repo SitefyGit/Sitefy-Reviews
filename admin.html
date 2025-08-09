@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Sitefy Reviews - Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="admin-auth.js"></script>
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        
+        .admin-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            flex: 1;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 0.7rem 1.5rem;
+            border: 2px solid var(--secondary-color);
+            background: white;
+            color: var(--secondary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .filter-tab.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .reviews-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .table-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 2fr;
+            gap: 1rem;
+            font-weight: 600;
+        }
+        
+        .review-row {
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 2fr;
+            gap: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            align-items: center;
+        }
+        
+        .review-row:last-child {
+            border-bottom: none;
+        }
+        
+        .review-content {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-approve {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-view {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-approve:hover {
+            background: #009960;
+        }
+        
+        .btn-reject:hover {
+            background: #dc2626;
+        }
+        
+        .btn-view:hover {
+            background: #002a3e;
+        }
+
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #d97706;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .btn-hide-rating {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-hide-rating:hover {
+            background: #4b5563;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        @media (max-width: 768px) {
+            .table-header,
+            .review-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .review-content {
+                max-width: none;
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-shield-alt"></i> Sitefy Reviews - Admin Panel</h1>
+            <div class="admin-controls">
+                <div class="admin-info">
+                    <i class="fas fa-user"></i> <span id="adminEmail">Loading...</span>
+                </div>
+                <button class="logout-btn" onclick="adminAuth.logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+        
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-status="all">All Reviews</button>
+            <button class="filter-tab" data-status="pending">Pending</button>
+            <button class="filter-tab" data-status="approved">Approved</button>
+            <button class="filter-tab" data-status="rejected">Rejected</button>
+        </div>
+        
+        <div class="reviews-table">
+            <div class="table-header">
+                <div>Review Details</div>
+                <div>User</div>
+                <div>Rating</div>
+                <div>Type</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
+            
+            <div id="reviewsList">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading reviews...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Review Details Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Review Details</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Review details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Helper: attach admin API token if set in localStorage
+        function getAdminHeaders(asJson = false) {
+            const headers = {};
+            const token = localStorage.getItem('sitefy_admin_api_token');
+            if (token) headers['x-admin-token'] = token;
+            if (asJson) headers['Content-Type'] = 'application/json';
+            return headers;
+        }
+
+        // Check authentication first (avoid illegal return at top-level)
+        const AUTH_OK = adminAuth.requireAuth();
+        if (!AUTH_OK) {
+            // Redirect happens inside requireAuth(); do not use 'return' at top-level
+        }
+
+        if (AUTH_OK) {
+            document.getElementById('adminEmail').textContent = adminAuth.getAdminEmail();
+        }
+
+        let currentFilter = 'all';
+        let reviews = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!AUTH_OK) return;
+            testConnection();
+            loadReviews();
+            setupFilterTabs();
+        });
+        
+        async function testConnection() {
+            try {
+                const response = await fetch('/api/health', { headers: getAdminHeaders() });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Backend connection successful:', data);
+                } else {
+                    console.error('Backend connection failed:', response.status);
+                }
+            } catch (error) {
+                console.error('Backend connection error:', error);
+                showError('Cannot connect to backend server. Please check if the server is running.');
+            }
+        }
+        
+        function setupFilterTabs() {
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.status;
+                    loadReviews();
+                });
+            });
+        }
+        
+        async function loadReviews() {
+            try {
+                const url = currentFilter === 'all' ? '/api/admin/reviews' : `/api/admin/reviews?status=${currentFilter}`;
+                const response = await fetch(url, { headers: getAdminHeaders() });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                if (data.success) {
+                    reviews = data.data;
+                    renderReviews(reviews);
+                } else {
+                    showError('Failed to load reviews: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                showError('Connection error: ' + error.message + '. Make sure the server is running.');
+            }
+        }
+        
+        // Render reviews table
+        function renderReviews(reviewsList) {
+            const container = document.getElementById('reviewsList');
+            
+            if (reviewsList.length === 0) {
+                container.innerHTML = '<div class="loading">No reviews found.</div>';
+                return;
+            }
+            
+            container.innerHTML = reviewsList.map(review => `
+                <div class="review-row">
+                    <div class="review-content">
+                        <strong>${escapeHtml(review.project_name)}</strong><br>
+                        <small>${escapeHtml(review.review_text || (review.video_url ? 'Video Review' : '')) .substring(0, 100)}...</small>
+                    </div>
+                    <div>
+                        <strong>${escapeHtml(review.user_name)}</strong><br>
+                        <small>${escapeHtml(review.user_email)}</small>
+                    </div>
+                    <div>
+                        ${review.hide_rating ? '' : `${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}`}
+                    </div>
+                    <div>
+                        <i class="fas fa-${review.review_type === 'video' ? 'video' : (review.review_type === 'both' ? 'plus' : 'edit')}"></i>
+                        ${review.review_type}
+                    </div>
+                    <div>
+                        <span class="status-badge status-${review.status}">${review.status}</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn btn-view" onclick="viewReview('${review.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="action-btn btn-edit" onclick="editReview('${review.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        ${review.status === 'pending' ? `
+                            <button class="action-btn btn-approve" onclick="updateStatus('${review.id}', 'approved')">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="action-btn btn-reject" onclick="updateStatus('${review.id}', 'rejected')">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        ` : ''}
+                        <button class="action-btn btn-hide-rating" onclick="toggleRatingVisibility('${review.id}', ${review.hide_rating || false})">
+                            <i class="fas fa-${review.hide_rating ? 'eye' : 'eye-slash'}"></i> ${review.hide_rating ? 'Show' : 'Hide'} Rating
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteReview('${review.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // View review details
+        function viewReview(reviewId) {
+            const review = reviews.find(r => r.id === reviewId);
+            if (!review) return;
+            
+            const modalBody = document.getElementById('modalBody');
+            const ratingHtml = review.hide_rating ? '' : `${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}`;
+            const videoSection = (review.video_url) ? `
+                <div style="margin-bottom: 1rem;">
+                    <h5>Video:</h5>
+                    <video controls style="width: 100%; max-height: 300px; border-radius: 8px;">
+                        <source src="${review.video_url}">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>` : '';
+            const textSection = review.review_text ? `
+                <div style="margin-bottom: 1rem;">
+                    <h5>Review Text:</h5>
+                    <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">${escapeHtml(review.review_text)}</p>
+                </div>` : '';
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <h4>Project: ${escapeHtml(review.project_name)}</h4>
+                    <p><strong>User:</strong> ${escapeHtml(review.user_name)} (${escapeHtml(review.user_email)})</p>
+                    <p><strong>Title:</strong> ${escapeHtml(review.user_title || 'N/A')}</p>
+                    <p><strong>Rating:</strong> ${ratingHtml}</p>
+                    <p><strong>Tags:</strong> ${review.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join(' ')}</p>
+                    <p><strong>Type:</strong> ${review.review_type}</p>
+                    <p><strong>Status:</strong> <span class="status-badge status-${review.status}">${review.status}</span></p>
+                    <p><strong>Submitted:</strong> ${new Date(review.created_at).toLocaleString()}</p>
+                </div>
+                ${review.project_description ? `
+                    <div style="margin-bottom: 1rem;">
+                        <h5>Project Description:</h5>
+                        <p>${escapeHtml(review.project_description)}</p>
+                    </div>
+                ` : ''}
+                ${textSection}
+                ${videoSection}
+                ${review.admin_notes ? `
+                    <div style="margin-bottom: 1rem;">
+                        <h5>Admin Notes:</h5>
+                        <p style="background: #fff3cd; padding: 1rem; border-radius: 8px;">${escapeHtml(review.admin_notes)}</p>
+                    </div>
+                ` : ''}
+                ${review.status === 'pending' ? `
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="action-btn btn-approve" onclick="updateStatus('${review.id}', 'approved'); closeModal();">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="action-btn btn-reject" onclick="updateStatus('${review.id}', 'rejected'); closeModal();">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+            
+            document.getElementById('reviewModal').style.display = 'block';
+        }
+        
+        // Update review status
+        async function updateStatus(reviewId, status) {
+            try {
+                const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+                    method: 'PATCH',
+                    headers: getAdminHeaders(true),
+                    body: JSON.stringify({ status })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`Review ${status} successfully!`);
+                    loadReviews();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+        }
+        
+        // Show error message
+        function showError(message) {
+            document.getElementById('reviewsList').innerHTML = `
+                <div class="loading" style="color: #ef4444;">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                </div>
+            `;
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('reviewModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Edit review (tags and project name)
+        function editReview(reviewId) {
+            const review = reviews.find(r => r.id === reviewId);
+            if (!review) return;
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <h4>Edit Review: ${escapeHtml(review.project_name)}</h4>
+                    <p><strong>User:</strong> ${escapeHtml(review.user_name)} (${escapeHtml(review.user_email)})</p>
+                </div>
+                
+                <form id="editReviewForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Project Name:</label>
+                        <input type="text" id="editProjectName" value="${escapeHtml(review.project_name)}" 
+                               style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tags:</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            ${['Online Business', 'Sitefy to do', 'Sitefy resume', 'SaaS Project', 'IT Project', 'Marketing Services', 'Website Development'].map(tag => `
+                                <label style="display: flex; align-items: center; gap: 0.3rem; background: #f3f4f6; padding: 0.3rem 0.7rem; border-radius: 15px; cursor: pointer;">
+                                    <input type="checkbox" ${review.tags.includes(tag) ? 'checked' : ''} value="${tag}" name="tags">
+                                    <span style="font-size: 0.9rem;">${tag}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button type="submit" class="action-btn btn-approve" style="flex: 1;">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button type="button" class="action-btn btn-reject" onclick="closeModal()" style="flex: 1;">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            `;
+            
+            document.getElementById('reviewModal').style.display = 'block';
+            
+            // Handle form submission
+            document.getElementById('editReviewForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const newProjectName = document.getElementById('editProjectName').value;
+                const checkedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
+                try {
+                    const response = await fetch(`/api/admin/reviews/${reviewId}/edit`, {
+                        method: 'PATCH',
+                        headers: getAdminHeaders(true),
+                        body: JSON.stringify({ project_name: newProjectName, tags: checkedTags })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('Review updated successfully!');
+                        closeModal();
+                        loadReviews();
+                    } else {
+                        alert('Failed to update review: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error updating review:', error);
+                    alert('Failed to update review. Please try again.');
+                }
+            });
+        }
+        
+        async function toggleRatingVisibility(reviewId, currentlyHidden) {
+            const newVisibility = !currentlyHidden;
+            try {
+                const response = await fetch(`/api/admin/reviews/${reviewId}/toggle-rating`, {
+                    method: 'PATCH',
+                    headers: getAdminHeaders(true),
+                    body: JSON.stringify({ hide_rating: newVisibility })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    loadReviews();
+                } else {
+                    alert('Failed to update rating visibility: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error updating rating visibility:', error);
+                alert('Failed to update rating visibility. Please try again.');
+            }
+        }
+        
+        async function deleteReview(reviewId) {
+            const review = reviews.find(r => r.id === reviewId);
+            if (!review) return;
+            const confirmed = confirm(`Are you sure you want to permanently delete the review for "${review.project_name}" by ${review.user_name}?\n\nThis action cannot be undone.`);
+            if (!confirmed) return;
+            try {
+                const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+                    method: 'DELETE',
+                    headers: getAdminHeaders()
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Review deleted successfully!');
+                    loadReviews();
+                } else {
+                    alert('Failed to delete review: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                alert('Failed to delete review. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

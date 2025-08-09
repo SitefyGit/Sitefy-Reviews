@@ -1,0 +1,553 @@
+// Mobile Navigation Toggle
+const hamburger = document.querySelector('.hamburger');
+const navMenu = document.querySelector('.nav-menu');
+
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navMenu.classList.toggle('active');
+});
+
+// Close mobile menu when clicking on a link
+document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    navMenu.classList.remove('active');
+}));
+
+// Review Type Toggle
+const reviewTypeInputs = document.querySelectorAll('input[name="reviewType"]');
+const textReviewSection = document.getElementById('textReviewSection');
+const videoReviewSection = document.getElementById('videoReviewSection');
+
+reviewTypeInputs.forEach(input => {
+    input.addEventListener('change', function() {
+        if (this.value === 'text') {
+            textReviewSection.style.display = 'flex';
+            videoReviewSection.style.display = 'none';
+            document.getElementById('reviewText').required = true;
+            document.getElementById('videoUpload').required = false;
+        } else if (this.value === 'video') {
+            textReviewSection.style.display = 'none';
+            videoReviewSection.style.display = 'flex';
+            document.getElementById('reviewText').required = false;
+            document.getElementById('videoUpload').required = true;
+        } else if (this.value === 'both') {
+            textReviewSection.style.display = 'flex';
+            videoReviewSection.style.display = 'flex';
+            // Require BOTH text and video for 'both'
+            document.getElementById('reviewText').required = true;
+            document.getElementById('videoUpload').required = true;
+        }
+    });
+});
+
+// Video Upload Handling
+const videoUpload = document.getElementById('videoUpload');
+const videoPreview = document.getElementById('videoPreview');
+const uploadPlaceholder = document.querySelector('.upload-placeholder');
+
+videoUpload.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Check file size (50MB limit)
+        if (file.size > 50 * 1024 * 1024) {
+            alert('File size too large. Please select a video under 50MB.');
+            this.value = '';
+            return;
+        }
+
+        // Check if it's a video file
+        if (!file.type.startsWith('video/')) {
+            alert('Please select a valid video file.');
+            this.value = '';
+            return;
+        }
+
+        const url = URL.createObjectURL(file);
+        const video = videoPreview.querySelector('video');
+        video.src = url;
+        
+        // Check video duration when metadata loads
+        video.addEventListener('loadedmetadata', function() {
+            if (this.duration > 60) {
+                alert('Video duration exceeds 1 minute. Please select a shorter video.');
+                removeVideo();
+                return;
+            }
+        });
+
+        uploadPlaceholder.style.display = 'none';
+        videoPreview.style.display = 'block';
+    }
+});
+
+// Remove Video Function
+function removeVideo() {
+    const video = videoPreview.querySelector('video');
+    video.src = '';
+    videoUpload.value = '';
+    uploadPlaceholder.style.display = 'block';
+    videoPreview.style.display = 'none';
+}
+
+// Star Rating Functionality
+const starInputs = document.querySelectorAll('.star-rating input');
+const starLabels = document.querySelectorAll('.star-rating label');
+
+// Add hover effects and click handlers
+starLabels.forEach((label, index) => {
+    // Hover effect
+    label.addEventListener('mouseenter', function() {
+        highlightStars(index + 1); // +1 because we want to highlight from 1 to current star
+    });
+    
+    // Click handler
+    label.addEventListener('click', function() {
+        const starValue = index + 1; // Stars are now in order 1-5
+        const correspondingInput = document.getElementById(`star${starValue}`);
+        correspondingInput.checked = true;
+        highlightStars(starValue, true);
+    });
+});
+
+// Mouse leave - reset to selected rating
+document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+    const checkedInput = document.querySelector('.star-rating input:checked');
+    if (checkedInput) {
+        const rating = parseInt(checkedInput.value);
+        highlightStars(rating, true);
+    } else {
+        resetStars();
+    }
+});
+
+function highlightStars(rating, permanent = false) {
+    starLabels.forEach((label, i) => {
+        if (i < rating) { // Highlight stars from left up to the rating
+            label.style.color = '#fbbf24';
+        } else {
+            label.style.color = '#ddd';
+        }
+    });
+}
+
+function resetStars() {
+    starLabels.forEach(label => {
+        label.style.color = '#ddd';
+    });
+}
+
+// Form Validation and Submission
+const reviewForm = document.getElementById('reviewForm');
+
+reviewForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const formData = new FormData(this);
+    
+    // Validate required fields
+    const userName = formData.get('userName');
+    const userEmail = formData.get('userEmail');
+    const projectName = formData.get('projectName');
+    const rating = formData.get('rating');
+    const reviewType = formData.get('reviewType');
+    
+    if (!userName || !userEmail || !projectName || !rating) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+
+    // Validate tags (at least one should be selected)
+    const selectedTags = formData.getAll('tags');
+    if (selectedTags.length === 0) {
+        alert('Please select at least one project category/tag.');
+        return;
+    }
+
+    // Validate review content based on type
+    const reviewText = formData.get('reviewText');
+    const videoFile = formData.get('videoUpload');
+
+    if (reviewType === 'text') {
+        if (!reviewText || reviewText.trim().length < 10) {
+            alert('Please write a meaningful review (at least 10 characters).');
+            return;
+        }
+    } else if (reviewType === 'video') {
+        if (!videoFile || videoFile.size === 0) {
+            alert('Please upload a video review.');
+            return;
+        }
+    } else if (reviewType === 'both') {
+        if (!reviewText || reviewText.trim().length < 10) {
+            alert('Please write a meaningful review (at least 10 characters).');
+            return;
+        }
+        if (!videoFile || videoFile.size === 0) {
+            alert('Please upload a video review.');
+            return;
+        }
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userEmail)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+
+    // Show loading state
+    const submitBtn = document.querySelector('.submit-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    submitBtn.disabled = true;
+
+    // Submit to backend
+    submitReview(formData)
+        .then(response => {
+            if (response.success) {
+                alert('Thank you for your review! It will be published after moderation.');
+                
+                // Reset form
+                reviewForm.reset();
+                removeVideo();
+                
+                // Reset star rating visual state
+                document.querySelectorAll('.star-rating label').forEach(label => {
+                    label.style.color = '';
+                });
+                
+                // Reset review type to text
+                document.getElementById('text-review').checked = true;
+                textReviewSection.style.display = 'flex';
+                videoReviewSection.style.display = 'none';
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                alert('Error: ' + response.message);
+            }
+        })
+        .catch(error => {
+            console.error('Submission error:', error);
+            alert('Failed to submit review. Please try again.');
+        })
+        .finally(() => {
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+});
+
+// Function to submit review to backend
+async function submitReview(formData) {
+    try {
+        const response = await fetch('/api/reviews', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Network error:', error);
+        throw new Error('Network error occurred');
+    }
+}
+
+// Smooth scroll for internal links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// Form field animations
+const formInputs = document.querySelectorAll('input, textarea');
+formInputs.forEach(input => {
+    input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', function() {
+        if (!this.value) {
+            this.parentElement.classList.remove('focused');
+        }
+    });
+    
+    // Check if field has value on page load
+    if (input.value) {
+        input.parentElement.classList.add('focused');
+    }
+});
+
+// Character counter for text review
+const reviewTextArea = document.getElementById('reviewText');
+if (reviewTextArea) {
+    const maxLength = 1000;
+    
+    // Create character counter element
+    const counterElement = document.createElement('div');
+    counterElement.className = 'character-counter';
+    counterElement.style.cssText = 'font-size: 0.9rem; color: #6b7280; text-align: right; margin-top: 0.5rem;';
+    reviewTextArea.parentElement.appendChild(counterElement);
+    
+    function updateCounter() {
+        const currentLength = reviewTextArea.value.length;
+        counterElement.textContent = `${currentLength}/${maxLength} characters`;
+        
+        if (currentLength > maxLength * 0.9) {
+            counterElement.style.color = '#ef4444';
+        } else if (currentLength > maxLength * 0.7) {
+            counterElement.style.color = '#f59e0b';
+        } else {
+            counterElement.style.color = '#6b7280';
+        }
+    }
+    
+    reviewTextArea.addEventListener('input', updateCounter);
+    reviewTextArea.maxLength = maxLength;
+    updateCounter(); // Initial call
+}
+
+// Auto-resize textarea
+function autoResizeTextarea(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+}
+
+const textareas = document.querySelectorAll('textarea');
+textareas.forEach(textarea => {
+    textarea.addEventListener('input', function() {
+        autoResizeTextarea(this);
+    });
+    
+    // Initial resize
+    autoResizeTextarea(textarea);
+});
+
+// Add loading animation for better UX
+function addLoadingStates() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (this.type === 'submit') {
+                return; // Handle submit button separately
+            }
+            
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }, 1000);
+        });
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    addLoadingStates();
+    
+    // Add fade-in animation to elements
+    const animatedElements = document.querySelectorAll('.review-card, .form-container');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    animatedElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(element);
+    });
+});
+
+// Handle form field validation in real-time
+function addRealTimeValidation() {
+    const requiredFields = document.querySelectorAll('input[required], textarea[required]');
+    
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        field.addEventListener('input', function() {
+            if (this.classList.contains('error')) {
+                validateField(this);
+            }
+        });
+    });
+}
+
+function validateField(field) {
+    const value = field.value.trim();
+    const fieldType = field.type;
+    let isValid = true;
+    let errorMessage = '';
+    
+    // Remove existing error styling
+    field.classList.remove('error');
+    const existingError = field.parentElement.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Required field validation
+    if (field.required && !value) {
+        isValid = false;
+        errorMessage = 'This field is required.';
+    }
+    
+    // Email validation
+    if (fieldType === 'email' && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            isValid = false;
+            errorMessage = 'Please enter a valid email address.';
+        }
+    }
+    
+    // Text area minimum length
+    if (field.tagName === 'TEXTAREA' && field.id === 'reviewText' && value) {
+        if (value.length < 10) {
+            isValid = false;
+            errorMessage = 'Please write at least 10 characters.';
+        }
+    }
+    
+    // Add error styling if invalid
+    if (!isValid) {
+        field.classList.add('error');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.cssText = 'color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;';
+        field.parentElement.appendChild(errorDiv);
+    }
+    
+    return isValid;
+}
+
+// Add CSS for error states
+const errorStyles = `
+    .form-group input.error,
+    .form-group textarea.error {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+`;
+
+const styleSheet = document.createElement('style');
+styleSheet.textContent = errorStyles;
+document.head.appendChild(styleSheet);
+
+// Initialize real-time validation
+document.addEventListener('DOMContentLoaded', function() {
+    addRealTimeValidation();
+    loadApprovedReviews();
+});
+
+// Function to load approved reviews from backend
+async function loadApprovedReviews() {
+    try {
+        const response = await fetch('/api/reviews');
+        const data = await response.json();
+        
+        if (data.success && data.data.length > 0) {
+            renderReviews(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        // Keep the static reviews as fallback
+    }
+}
+
+// Function to render reviews
+function renderReviews(reviews) {
+    const reviewsGrid = document.querySelector('.reviews-grid');
+    
+    // Clear existing reviews (keep first 3 as samples if no backend reviews)
+    if (reviews.length > 0) {
+        reviewsGrid.innerHTML = '';
+        
+        reviews.forEach(review => {
+            const reviewCard = createReviewCard(review);
+            reviewsGrid.appendChild(reviewCard);
+        });
+    }
+}
+
+// Function to create review card element
+function createReviewCard(review) {
+    const reviewCard = document.createElement('div');
+    reviewCard.className = 'review-card';
+    const tagsHtml = review.tags.map(tag => `<span class="tag">#${tag.replace(/\s+/g, '')}</span>`).join('');
+    const starsHtml = review.hide_rating ? '' : ('★'.repeat(review.rating) + '☆'.repeat(5 - review.rating));
+    const reviewDate = new Date(review.created_at).toLocaleDateString();
+
+    let contentSections = '';
+    if (review.review_text) {
+        contentSections += `<p>${escapeHtml(review.review_text)}</p>`;
+    }
+    if (review.video_url) {
+        contentSections += `
+            <div class="review-video" style="margin-top: 0.75rem;">
+                <video controls style="width: 100%; max-height: 300px; border-radius: 8px;">
+                    <source src="${review.video_url}">
+                    Your browser does not support the video tag.
+                </video>
+            </div>`;
+    }
+    
+    reviewCard.innerHTML = `
+        <div class="review-header">
+            <div class="reviewer-info">
+                <h4>${escapeHtml(review.user_name)}</h4>
+                <p>${escapeHtml(review.user_title || 'Customer')}</p>
+            </div>
+            <div class="review-rating">
+                ${review.hide_rating ? '' : `<span class="stars">${starsHtml}</span>`}
+            </div>
+        </div>
+        <div class="review-content">
+            <div class="review-project">
+                <strong>Project:</strong> ${escapeHtml(review.project_name)}
+            </div>
+            <div class="review-tags">
+                ${tagsHtml}
+            </div>
+            ${contentSections}
+            <div class="review-date">
+                <small>Reviewed on ${reviewDate}</small>
+            </div>
+        </div>
+    `;
+    
+    return reviewCard;
+}
+
+// Function to escape HTML to prevent XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}

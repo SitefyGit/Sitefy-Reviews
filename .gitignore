@@ -1,0 +1,64 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+*.lcov
+
+# Build outputs
+build/
+dist/
+.out/
+.cache/
+.tmp/
+temp/
+tmp/
+
+# Environment files (do not commit secrets)
+.env
+.env.*
+!.env.example
+
+# Local project directories
+.vercel/
+.supabase/
+
+# Editor/OS files
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc caches
+.eslintcache
+
+# Framework-specific (safe to ignore even if unused)
+.next/
+out/
+.serverless/
+
+# Package tarballs
+*.tgz
