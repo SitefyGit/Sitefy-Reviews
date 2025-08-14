@@ -72,6 +72,7 @@ body {
 
 .nav-item {
     position: relative;
+    overflow: visible; /* allow nested submenus to render outside */
 }
 
 .nav-link {
@@ -123,7 +124,8 @@ body {
 .dropdown-menu,
 .mega-dropdown .mega-menu {
     max-height: calc(100vh - 140px);
-    overflow-y: auto;
+    overflow-y: auto;            /* vertical scroll for long lists */
+    overflow-x: visible;         /* let nested submenu escape horizontally */
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
 }
@@ -154,14 +156,24 @@ body {
 /* Nested submenu for Services */
 .has-submenu { position: relative; }
 .has-submenu-link { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 1.5rem; color: var(--text-color); text-decoration: none; }
-.submenu { display: none; position: absolute; top: 0; left: 100%; background: #fff; min-width: 260px; box-shadow: 0 8px 25px rgba(0, 51, 78, 0.15); border-radius: 8px; padding: 0.5rem 0; }
+.submenu { display: none; position: absolute; top: 0; left: 100%; margin-left: 8px; background: #fff; min-width: 280px; box-shadow: 0 8px 25px rgba(0, 51, 78, 0.15); border-radius: 8px; padding: 0.5rem 0; list-style: none; z-index: 1100; white-space: nowrap; }
 .has-submenu:hover > .submenu { display: block; }
 .submenu a { display: block; padding: 0.7rem 1rem; color: var(--text-color); text-decoration: none; }
 .submenu a:hover { background: var(--light-gray); color: var(--secondary-color); }
+.dropdown-menu .has-submenu:hover > .has-submenu-link { background: var(--light-gray); }
 
 @media (max-width: 768px) {
   .submenu { position: static; left: 0; box-shadow: none; border-radius: 8px; background: var(--light-gray); }
   .has-submenu.open > .submenu { display: block; }
+}
+
+/* Prevent submenu clipping on the right edge (best-effort, wide screens) */
+@media (min-width: 769px) {
+    .dropdown-menu { overflow-x: visible; }
+    .dropdown-menu .has-submenu { position: relative; }
+    .dropdown-menu .has-submenu .submenu { right: auto; left: 100%; }
+    /* If parent is close to right edge, allow flipping with a utility class if needed */
+    .dropdown-menu .has-submenu.flip .submenu { left: auto; right: 100%; margin-left: 0; margin-right: 8px; }
 }
 
 /* Mega Menu Styles */
