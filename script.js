@@ -22,6 +22,7 @@ navLinks.forEach(link => {
             parentItem.classList.toggle('open');
             return;
         }
+        // If not mobile or no submenu, proceed with navigation
 
         // If normal link (no submenu) close the menu
         hamburger.classList.remove('active');
