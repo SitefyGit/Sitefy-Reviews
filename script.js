@@ -37,6 +37,18 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Enable nested submenu toggle on mobile for Services
+const nestedLinks = document.querySelectorAll('.has-submenu > .has-submenu-link');
+nestedLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (!isMobile) return; // on desktop hover handles it
+    e.preventDefault();
+    const parent = link.closest('.has-submenu');
+    parent.classList.toggle('open');
+  });
+});
+
 // Review Type Toggle
 const reviewTypeInputs = document.querySelectorAll('input[name="reviewType"]');
 const textReviewSection = document.getElementById('textReviewSection');

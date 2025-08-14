@@ -151,6 +151,19 @@ body {
     color: var(--secondary-color);
 }
 
+/* Nested submenu for Services */
+.has-submenu { position: relative; }
+.has-submenu-link { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 1.5rem; color: var(--text-color); text-decoration: none; }
+.submenu { display: none; position: absolute; top: 0; left: 100%; background: #fff; min-width: 260px; box-shadow: 0 8px 25px rgba(0, 51, 78, 0.15); border-radius: 8px; padding: 0.5rem 0; }
+.has-submenu:hover > .submenu { display: block; }
+.submenu a { display: block; padding: 0.7rem 1rem; color: var(--text-color); text-decoration: none; }
+.submenu a:hover { background: var(--light-gray); color: var(--secondary-color); }
+
+@media (max-width: 768px) {
+  .submenu { position: static; left: 0; box-shadow: none; border-radius: 8px; background: var(--light-gray); }
+  .has-submenu.open > .submenu { display: block; }
+}
+
 /* Mega Menu Styles */
 .mega-dropdown .mega-menu {
     position: absolute;
