@@ -410,6 +410,9 @@ document.addEventListener('DOMContentLoaded', function() {
         element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(element);
     });
+
+    // Smart position dropdowns on desktop so they always fit the viewport
+    initDropdownPositioning();
 });
 
 // Handle form field validation in real-time
@@ -496,6 +499,128 @@ document.addEventListener('DOMContentLoaded', function() {
     addRealTimeValidation();
     loadApprovedReviews();
 });
+
+// --- Dropdown smart positioning (desktop) ---
+function isDesktop() {
+    return window.matchMedia('(min-width: 769px)').matches;
+}
+
+function initDropdownPositioning() {
+    const dropdownItems = document.querySelectorAll('.nav-item.dropdown');
+    dropdownItems.forEach(item => {
+        const menu = item.querySelector('.dropdown-menu, .mega-menu');
+        if (!menu) return;
+
+        // On open, do not reposition; keep natural placement to avoid jump
+        item.addEventListener('mouseenter', () => {
+            /* intentionally no-op on desktop to prevent initial jump */
+        });
+
+        item.addEventListener('mouseleave', () => {
+            resetDropdownPosition(menu);
+        });
+
+        // Also reposition nested submenus
+        menu.querySelectorAll('.has-submenu').forEach(li => {
+            const sub = li.querySelector('.submenu');
+            if (!sub) return;
+            li.addEventListener('mouseenter', () => {
+                if (!isDesktop()) return;
+                // Only flip horizontally if needed; avoid vertical shift on open
+                requestAnimationFrame(() => positionSubmenu(sub, true));
+            });
+            li.addEventListener('mouseleave', () => resetSubmenuPosition(sub));
+        });
+    });
+
+    // Track scroll/resize to keep open menus fitted
+    const onViewportChange = () => {
+        if (!isDesktop()) return;
+        document.querySelectorAll('.nav-item.dropdown').forEach(item => {
+            const menu = item.querySelector('.dropdown-menu, .mega-menu');
+            if (!menu) return;
+            if (item.matches(':hover')) {
+                positionDropdown(menu);
+                // Also adjust any visible submenus
+                menu.querySelectorAll('.has-submenu').forEach(li => {
+                    const sub = li.querySelector('.submenu');
+                    if (sub && li.matches(':hover')) positionSubmenu(sub, false);
+                });
+            }
+        });
+    };
+    window.addEventListener('scroll', onViewportChange, { passive: true });
+    window.addEventListener('resize', onViewportChange);
+}
+
+function positionDropdown(menu) {
+    if (!menu) return;
+    // Reset first
+    menu.style.transform = 'translateY(0)';
+    menu.style.top = '100%';
+
+    const margin = 12;
+    const rect = menu.getBoundingClientRect();
+    let shift = 0;
+    if (rect.bottom > window.innerHeight - margin) {
+        shift -= (rect.bottom - (window.innerHeight - margin));
+    }
+    if (rect.top < margin) {
+        shift += (margin - rect.top);
+    }
+    if (shift !== 0) {
+        menu.style.transform = `translateY(${shift}px)`;
+    }
+}
+
+function resetDropdownPosition(menu) {
+    if (!menu) return;
+    menu.style.transform = '';
+    menu.style.top = '';
+}
+
+function positionSubmenu(sub, initial = false) {
+    if (!sub) return;
+    // Default: open to the right
+    sub.style.left = '100%';
+    sub.style.right = 'auto';
+    sub.style.marginLeft = '8px';
+    sub.style.marginRight = '0';
+    sub.style.transform = 'translateY(0)';
+
+    const margin = 12;
+    let rect = sub.getBoundingClientRect();
+
+    // If overflow right, flip to left
+    if (rect.right > window.innerWidth - margin) {
+        sub.style.left = 'auto';
+        sub.style.right = '100%';
+        sub.style.marginLeft = '0';
+        sub.style.marginRight = '8px';
+        rect = sub.getBoundingClientRect();
+    }
+
+    if (!initial) {
+        // Vertical fit only during scroll/resize adjustments
+        let shift = 0;
+        if (rect.bottom > window.innerHeight - margin) {
+            shift -= (rect.bottom - (window.innerHeight - margin));
+        }
+        if (rect.top < margin) {
+            shift += (margin - rect.top);
+        }
+        if (shift !== 0) sub.style.transform = `translateY(${shift}px)`;
+    }
+}
+
+function resetSubmenuPosition(sub) {
+    if (!sub) return;
+    sub.style.left = '';
+    sub.style.right = '';
+    sub.style.marginLeft = '';
+    sub.style.marginRight = '';
+    sub.style.transform = '';
+}
 
 // Function to load approved reviews from backend
 async function loadApprovedReviews() {

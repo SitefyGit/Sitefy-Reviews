@@ -120,15 +120,7 @@ body {
     z-index: 1000;
 }
 
-/* Make tall dropdowns scrollable */
-.dropdown-menu,
-.mega-dropdown .mega-menu {
-    max-height: calc(100vh - 140px);
-    overflow-y: auto;            /* vertical scroll for long lists */
-    overflow-x: visible;         /* let nested submenu escape horizontally */
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-}
+/* Desktop: submenus may overflow horizontally; non-Services menus can scroll if tall */
 
 .nav-item:hover .dropdown-menu {
     opacity: 1;
@@ -153,6 +145,13 @@ body {
     color: var(--secondary-color);
 }
 
+/* Desktop: scrollbars for non-Services dropdowns */
+@media (min-width: 769px) {
+    .dropdown-menu { max-height: calc(100vh - 140px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+    .services-dropdown > .dropdown-menu { max-height: none; overflow: visible; } /* keep Services without scrollbar */
+    .mega-dropdown .mega-menu { max-height: calc(100vh - 140px); overflow-y: auto; }
+}
+
 /* Nested submenu for Services */
 .has-submenu { position: relative; }
 .has-submenu-link { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 1.5rem; color: var(--text-color); text-decoration: none; }
@@ -163,7 +162,7 @@ body {
 .dropdown-menu .has-submenu:hover > .has-submenu-link { background: var(--light-gray); }
 
 /* Inner scroll wrapper to prevent clipping of nested submenu */
-.services-dropdown > .dropdown-menu { /* Only Services: parent should not scroll */
+.services-dropdown > .dropdown-menu { /* Services: no internal scrollbar on desktop */
     max-height: none;
     overflow: visible;
 }
@@ -172,12 +171,16 @@ body {
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: calc(100vh - 160px);
-    overflow-y: auto;   /* single scrollbar lives here */
-    overflow-x: hidden; /* prevent horizontal scrollbar */
+    max-height: none;   /* inner list doesn't scroll */
+    overflow: visible;  /* let submenu show */
     min-width: 320px;
     box-sizing: border-box;
 }
+
+/* Services menu: slightly smaller text and tighter padding */
+.services-dropdown .dropdown-menu a,
+.services-dropdown .has-submenu-link { font-size: 0.95rem; padding: 0.55rem 1.2rem; }
+.services-dropdown .submenu a { font-size: 0.95rem; padding: 0.55rem 1rem; }
 
 @media (max-width: 768px) {
   .submenu { position: static; left: 0; box-shadow: none; border-radius: 8px; background: var(--light-gray); }
@@ -793,15 +796,7 @@ body {
         overflow-y: auto;
     }
 
-    .nav-menu.active {
-        left: 0;
-    }
-
-    .nav-item {
-        margin: 0.25rem 0;
-    }
-
-    /* Mobile collapsible submenus: hidden by default */
+        
     .dropdown-menu,
     .mega-dropdown .mega-menu {
         position: static;
