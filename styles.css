@@ -162,6 +162,23 @@ body {
 .submenu a:hover { background: var(--light-gray); color: var(--secondary-color); }
 .dropdown-menu .has-submenu:hover > .has-submenu-link { background: var(--light-gray); }
 
+/* Inner scroll wrapper to prevent clipping of nested submenu */
+.services-dropdown > .dropdown-menu { /* Only Services: parent should not scroll */
+    max-height: none;
+    overflow: visible;
+}
+
+.services-dropdown .dropdown-scroll {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;   /* single scrollbar lives here */
+    overflow-x: hidden; /* prevent horizontal scrollbar */
+    min-width: 320px;
+    box-sizing: border-box;
+}
+
 @media (max-width: 768px) {
   .submenu { position: static; left: 0; box-shadow: none; border-radius: 8px; background: var(--light-gray); }
   .has-submenu.open > .submenu { display: block; }
