@@ -780,6 +780,16 @@ body {
         display: flex;
     }
 
+    /* When menu is toggled open by JS */
+    .nav-menu.open {
+        left: 0;
+    }
+
+    /* Prevent background scrolling when mobile nav is open */
+    body.nav-open {
+        overflow: hidden;
+    }
+
     .nav-menu {
         position: fixed;
         left: -100%;
@@ -794,6 +804,17 @@ body {
         z-index: 2000; /* ensure on top */
     max-height: calc(100vh - 60px);
         overflow-y: auto;
+    }
+
+    /* Hamburger -> X animation when active */
+    .hamburger.active .bar:nth-child(1) {
+        transform: translateY(6px) rotate(45deg);
+    }
+    .hamburger.active .bar:nth-child(2) {
+        opacity: 0;
+    }
+    .hamburger.active .bar:nth-child(3) {
+        transform: translateY(-6px) rotate(-45deg);
     }
 
         

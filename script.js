@@ -1,53 +1,100 @@
-// Mobile Navigation Toggle
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
+// Mobile Navigation Toggle (DOM ready)
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
 
-hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
-});
-
-// Close mobile menu when clicking on a link
-// Also handle submenus on mobile
-const navLinks = document.querySelectorAll('.nav-link');
-navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        const parentItem = link.closest('.nav-item');
-        const hasSubmenu = parentItem && (parentItem.querySelector('.dropdown-menu') || parentItem.querySelector('.mega-menu'));
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-
-        if (isMobile && hasSubmenu) {
-            // Toggle submenu instead of navigating
-            e.preventDefault();
-            parentItem.classList.toggle('open');
-            return;
-        }
-        // If not mobile or no submenu, proceed with navigation
-
-        // If normal link (no submenu) close the menu
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
-    });
-});
-
-// Close menu when clicking outside (mobile)
-document.addEventListener('click', (e) => {
-    const isClickInside = e.target.closest('.navbar');
-    if (!isClickInside) {
-        document.querySelectorAll('.nav-item.open').forEach(item => item.classList.remove('open'));
+    if (!hamburger || !navMenu) {
+        console.warn('Mobile menu: .hamburger or .nav-menu not found');
+        return;
     }
-});
-//
-// Enable nested submenu toggle on mobile for Services
-const nestedLinks = document.querySelectorAll('.has-submenu > .has-submenu-link');
-nestedLinks.forEach(link => {
-  link.addEventListener('click', (e) => {
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    if (!isMobile) return; // on desktop hover handles it
-    e.preventDefault();
-    const parent = link.closest('.has-submenu');
-    parent.classList.toggle('open');
-  });
+
+    const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+
+    const openMenu = (open) => {
+        const willOpen = typeof open === 'boolean' ? open : !navMenu.classList.contains('open');
+        navMenu.classList.toggle('open', willOpen);
+        hamburger.classList.toggle('active', willOpen);
+        hamburger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        document.body.classList.toggle('nav-open', willOpen);
+    };
+
+    // Toggle main menu
+    hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openMenu();
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+            openMenu(false);
+            // close any open submenus
+            document.querySelectorAll('.has-submenu.open, .nav-item.open').forEach(el => el.classList.remove('open'));
+            // reset inline maxHeight used for mobile submenu animation
+            document.querySelectorAll('.has-submenu .submenu').forEach(sub => sub.style.maxHeight = null);
+        }
+    });
+
+    // Close menu on resize to desktop
+    window.addEventListener('resize', () => {
+        if (!isMobile()) openMenu(false);
+    });
+
+    // Links behavior: close main menu when clicking a normal link on mobile
+    navMenu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', (ev) => {
+            // If this link is a submenu toggle (has-submenu parent), let submenu handler manage it
+            const parentItem = a.closest('.has-submenu, .nav-item');
+            const hasSubmenu = parentItem && parentItem.querySelector('.submenu, .dropdown-menu, .mega-menu');
+            if (isMobile() && !hasSubmenu) {
+                openMenu(false);
+            }
+        });
+    });
+
+    // Mobile submenu toggles for any .has-submenu
+    document.querySelectorAll('.has-submenu').forEach(item => {
+        // prefer explicit toggle button if present
+        const toggle = item.querySelector('.submenu-toggle') || item.querySelector('.has-submenu-link') || item.querySelector('a');
+        const submenu = item.querySelector('.submenu');
+
+        if (!toggle || !submenu) return;
+
+        toggle.addEventListener('click', (ev) => {
+            if (!isMobile()) return; // desktop uses hover
+            ev.preventDefault();
+            ev.stopPropagation();
+            item.classList.toggle('open');
+            if (item.classList.contains('open')) {
+                submenu.style.maxHeight = submenu.scrollHeight + 'px';
+            } else {
+                submenu.style.maxHeight = null;
+            }
+        });
+    });
+
+    // Top-level dropdown parents (e.g. .nav-item.dropdown) should toggle on mobile
+    navMenu.querySelectorAll('.nav-item.dropdown > .nav-link').forEach(link => {
+        link.addEventListener('click', function(ev) {
+            if (!isMobile()) return; // desktop hover
+            const parent = this.closest('.nav-item');
+            const menu = parent && parent.querySelector('.dropdown-menu, .mega-menu');
+            if (!menu) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const opened = parent.classList.toggle('open');
+
+            // Close sibling open items to keep it tidy on mobile
+            if (opened && parent.parentElement) {
+                parent.parentElement.querySelectorAll('.nav-item.open').forEach(sib => {
+                    if (sib !== parent) {
+                        sib.classList.remove('open');
+                        sib.querySelectorAll('.submenu').forEach(s => s.style.maxHeight = null);
+                    }
+                });
+            }
+        });
+    });
 });
 
 // Review Type Toggle
@@ -293,14 +340,34 @@ async function submitReview(formData) {
 }
 
 // Smooth scroll for internal links
+// Smooth scroll for internal links (guard invalid selectors like '#')
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth'
-            });
+        const href = this.getAttribute('href');
+        if (!href) return;
+
+        // If href is exactly '#' -> treat as scroll-to-top
+        if (href === '#') {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // For other hash links, ensure we have a valid selector (length > 1)
+        if (href.length > 1 && href.startsWith('#')) {
+            // Protect against invalid selectors (e.g. malformed ids)
+            let target = null;
+            try {
+                target = document.querySelector(href);
+            } catch (err) {
+                // invalid selector, do nothing
+                return;
+            }
+
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     });
 });
