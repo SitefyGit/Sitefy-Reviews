@@ -37,7 +37,7 @@ document.addEventListener('click', (e) => {
         document.querySelectorAll('.nav-item.open').forEach(item => item.classList.remove('open'));
     }
 });
-
+//
 // Enable nested submenu toggle on mobile for Services
 const nestedLinks = document.querySelectorAll('.has-submenu > .has-submenu-link');
 nestedLinks.forEach(link => {
