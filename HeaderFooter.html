@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sitefy — Header & Footer</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+  <style>
+    /* Reset and Base Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --primary-color: #00334E;
+        --secondary-color: #00B675;
+        --accent-color: #fbbf24;
+        --text-color: #333;
+        --background-color: #f8f9fa;
+        --white: #ffffff;
+        --light-gray: #f1f5f9;
+        --border-color: #e5e7eb;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--background-color);
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    a {
+        text-decoration: none;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    /* Header Styles */
+    .main-header {
+        background: var(--white);
+        box-shadow: 0 2px 10px rgba(0, 51, 78, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .navbar {
+        padding: 0.6rem 0;
+    }
+
+    .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo h2 {
+        color: var(--primary-color);
+        font-size: 1.6rem;
+        font-weight: bold;
+    }
+
+    .nav-menu {
+        display: flex;
+        list-style: none;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .nav-item {
+        position: relative;
+        overflow: visible;
+    }
+
+    .nav-link {
+        color: var(--text-color);
+        font-weight: 500;
+        padding: 0.4rem 0;
+        transition: color 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nav-link:hover {
+        color: var(--secondary-color);
+    }
+
+    .nav-link.sign-in {
+        background: var(--secondary-color);
+        color: white;
+        padding: 0.55rem 1.1rem;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-link.sign-in:hover {
+        background: #009960;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 250px;
+        box-shadow: 0 8px 25px rgba(0, 51, 78, 0.15);
+        border-radius: 8px;
+        padding: 1rem 0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    .nav-item:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .dropdown-menu a {
+        display: block;
+        padding: 0.7rem 1.5rem;
+        color: var(--text-color);
+    }
+
+    .dropdown-menu a:hover {
+        background: var(--light-gray);
+        color: var(--secondary-color);
+    }
+
+    /* Desktop: scrollbars for non-Services dropdowns */
+    @media (min-width: 769px) {
+        .dropdown-menu { 
+            max-height: calc(100vh - 140px); 
+            overflow-y: auto; 
+            overflow-x: hidden; /* Hide horizontal overflow by default */
+            overscroll-behavior: contain; 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .services-dropdown > .dropdown-menu { 
+            max-height: none; 
+            overflow: visible; /* Allow services submenu to overflow */
+        }
+    }
+
+    /* Services menu: slightly smaller text and tighter padding */
+    .services-dropdown .dropdown-menu a,
+    .services-dropdown .has-submenu-link { 
+        font-size: 0.95rem; 
+        padding: 0.55rem 1.2rem; 
+    }
+    .services-dropdown .submenu a { 
+        font-size: 0.95rem; 
+        padding: 0.55rem 1rem; 
+    }
+
+    /* Nested submenu */
+    .has-submenu { position: relative; }
+    .has-submenu-link { display: flex; align-items: center; justify-content: space-between; }
+    .submenu { display: none; position: absolute; top: 0; left: 100%; margin-left: 8px; background: #fff; min-width: 280px; box-shadow: 0 8px 25px rgba(0, 51, 78, 0.15); border-radius: 8px; padding: 0.5rem 0; z-index: 1100; }
+    .has-submenu:hover > .submenu { display: block; }
+    .dropdown-menu .has-submenu:hover > .has-submenu-link { background: var(--light-gray); }
+
+    .services-dropdown .dropdown-scroll {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        min-width: 320px;
+        overflow: visible; /* Ensure inner list allows overflow */
+    }
+    
+    /* Hamburger */
+    .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+    }
+
+    .bar {
+        width: 25px;
+        height: 3px;
+        background: #333;
+        margin: 3px 0;
+        transition: 0.3s;
+    }
+
+    /* Footer Styles */
+    .main-footer {
+        background: var(--primary-color);
+        color: white;
+        padding: 3rem 0 1rem;
+    }
+
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .footer-brand h2 {
+        color: var(--secondary-color);
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+        color: #9ca3af;
+        line-height: 1.6;
+        max-width: 600px;
+    }
+
+    .footer-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .footer-column h3 {
+        color: white;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .footer-column a {
+        color: #9ca3af;
+        transition: color 0.3s ease;
+    }
+
+    .footer-column a:hover {
+        color: var(--secondary-color);
+    }
+
+    .footer-bottom {
+        border-top: 1px solid #374151;
+        padding-top: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #374151;
+        color: white;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+    }
+
+    .social-links a:hover {
+        background: var(--secondary-color);
+    }
+
+    .footer-bottom p {
+        color: #9ca3af;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hamburger {
+            display: flex;
+        }
+        .nav-menu {
+            position: fixed;
+            left: -100%;
+            top: 70px; /* Adjust based on header height */
+            flex-direction: column;
+            background-color: white;
+            width: 100%;
+            height: calc(100vh - 70px);
+            text-align: left;
+            transition: 0.3s;
+            padding: 2rem;
+            overflow-y: auto;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+        .nav-menu.open {
+            left: 0;
+        }
+        body.nav-open {
+            overflow: hidden;
+        }
+        .dropdown-menu, .has-submenu:hover .submenu {
+            position: static;
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            box-shadow: none;
+            border: none;
+            padding-left: 1rem;
+            display: none; /* Hidden by default on mobile */
+        }
+        .nav-item.open > .dropdown-menu, .has-submenu.open > .submenu {
+            display: block; /* Shown on toggle */
+        }
+        .submenu {
+            background: #f9f9f9;
+            border-radius: 4px;
+            margin-left: 0;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header   -->
+  <header class="main-header">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="https://sitefy.co/">
+                    <h2>SITEFY</h2>
+                </a>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Buy/Sell Website <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://sitefy.co/product-category/most-successful-businesses/">Most Successful Businesses</a></li>
+                        <li><a href="https://sitefy.co/product/travel-website/">Travel Website for Sale</a></li>
+                        <li><a href="https://sitefy.co/product-category/affiliate/">Premade Autopilot Affiliate Websites</a></li>
+                        <li><a href="https://sitefy.co/dropshipping-websites-for-sale/">Premade Dropshipping Stores</a></li>
+                        <li><a href="https://sitefy.co/product/drop-servicing-website/">Premade Drop Servicing Websites</a></li>
+                        <li><a href="https://sitefy.co/product/amazon-affiliate-website/">Amazon Affiliate Website</a></li>
+                        <li><a href="https://sitefy.co/product/readymade-blog-website/">Premade Blog Website</a></li>
+                        <li><a href="https://sitefy.co/product/readymade-shopify-dropshipping-store/">Pre-built Shopify Dropshipping Store</a></li>
+                        <li><a href="https://sitefy.co/product/digital-products-website-to-sell-digital-downloads-online/">Digital Products Website for Sale</a></li>
+                        <li><a href="https://sitefy.co/product-category/ai-businesses-for-sale/">AI Businesses for Sale</a></li>
+                        <li><a href="https://sitefy.co/product-category/agency-businesses-for-sale/">Agency Businesses for Sale</a></li>
+                        <li><a href="https://sitefy.co/product-category/marketplace/">Marketplace / CMS</a></li>
+                        <li><a href="https://sitefy.co/product-category/saas-businesses-for-sale/">Saas Businesses for Sale</a></li>
+                        <li><a href="https://sitefy.co/product-category/portfolio-of-websites/">Portfolio of Websites</a></li>
+                        <li><a href="https://sitefy.co/bring-business-online/">Bring Business Online</a></li>
+                        <li><a href="https://sitefy.co/sell-website/">Sell Website</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Grow Business <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://sitefy.co/growth-for-existing-clients/">Growth for Existing Clients</a></li>
+                        <li><a href="https://sitefy.co/product/business-growth-bundle-for-dropship-stores/">Business Growth Bundle for Dropship Stores</a></li>
+                        <li><a href="https://sitefy.co/product/business-growth-bundle-for-small-business/">Business Growth Bundle for Small Business</a></li>
+                        <li><a href="https://sitefy.co/product/saas-growth-accelerator/">SaaS Growth Accelerator</a></li>
+                        <li><a href="https://sitefy.co/product/grow-hvac-business-using-business-growth-bundle/">Grow HVAC Business using Business Growth Bundle</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="https://sitefy.co/todo" class="nav-link">Sitefy To Do</a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://sitefy.co/resume" class="nav-link">Sitefy Resume</a>
+                </li>
+                <li class="nav-item dropdown services-dropdown">
+                    <a href="#" class="nav-link">
+                        Services <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <ul class="dropdown-scroll">
+                            <li><a href="https://sitefy.co/mvp-development-for-startups/">MVP Development</a></li>
+                            <li><a href="https://sitefy.co/product/monthly-seo-service/">SEO Services</a></li>
+                            <li><a href="https://sitefy.co/web-development-services/">Web Development Services</a></li>
+                            <li class="has-submenu">
+                                <a href="#" class="has-submenu-link">Content Writing Services <i class="fas fa-chevron-right"></i></a>
+                                <ul class="submenu">
+                                    <li><a href="https://sitefy.co/product/monthly-content-writing-service/">30 Blog Posts / month</a></li>
+                                    <li><a href="https://sitefy.co/product/content-writer-for-hire/">Dedicated Content Writer [Fulltime]</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="https://sitefy.co/product/linkedin-lead-generation-services/">Linkedin Lead Generation Services</a></li>
+                            <li><a href="https://sitefy.co/product/wordpress-development-subscription/">Dedicated WordPress Developer</a></li>
+                            <li><a href="https://sitefy.co/product/design-subscription/">Dedicated UI/UX Designer</a></li>
+                            <li><a href="https://sitefy.co/product/monthly-social-media-manager-and-content-creator/">Social Media Services</a></li>
+                            <li><a href="https://sitefy.co/product/monthly-online-reputation-management-orm-service/">[ORM] Reputation Management Services</a></li>
+                            <li><a href="https://sitefy.co/pr-services-in-india/">PR Services</a></li>
+                            <li><a href="https://sitefy.co/influencer-management-agency/">Influencer Management Agency</a></li>
+                            <li><a href="https://sitefy.co/product/reddit-marketing-services/">Sitefy Reddito – Go Viral On Reddit</a></li>
+                            <li><a href="https://sitefy.co/product/monthly-local-seo-service/">Local SEO Services</a></li>
+                            <li><a href="https://sitefy.co/product/monthly-virtual-assistant-services/">Virtual Assistant Services</a></li>
+                            <li><a href="https://sitefy.co/product/monthly-google-business-profile-management-service/">[GMB] Google Business Profile Management Services</a></li>
+                            <li><a href="https://sitefy.co/product/monthly-wordpress-website-maintenance-and-support-service/">WordPress Maintenance Services</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link">
+                        Affiliate Program <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://sitefy.co/sitefy-affiliate-program/">Become Sitefy Affiliate</a></li>
+                        <li><a href="https://sitefy.co/affiliate-home/affiliate-login/">Affiliate Login <span style="opacity:.8; font-weight:400;">(for registered business partners)</span></a></li>
+                        <li><a href="https://sitefy.co/affiliate-home/">Affiliate Dashboard <span style="opacity:.8; font-weight:400;">(For Logged-in Business Partners)</span></a></li>
+                        <li><a href="https://sitefy.co/how-to-become-sitefy-affiliate-step-by-step/">How to become Sitefy affiliate? Step by Step</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="https://sitefy.co/category/blog/" class="nav-link">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://sitefy.co/my-account/" class="nav-link sign-in">Sign In</a>
+                </li>
+            </ul>
+
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+</header>
+<h1>.</h1>
+<h1>Just Header and Footer</h1>
+<h1>.</h1>
+
+  <!-- Footer   -->
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <h2>SITEFY</h2>
+                    <p>One stop destination for IT Services and Business Solutions. The ideal place where you can buy quality readymade online businesses, websites for sale and kick start your entrepreneurship journey in record time.</p>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>FOR YOU</h3>
+                    <ul>
+                        <li><a href="#">Got Question?</a></li>
+                        <li><a href="https://sitefy.co/contact-us/">Contact Us</a></li>
+                        <li><a href="https://sitefy.co/sitefy-affiliate-program">Affiliate Program</a></li>
+                        <li><a href="https://community.sitefy.co/">Expert Community</a></li>
+                        <li><a href="https://sitefy.co/career/">Careers</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>DISCOVER</h3>
+                    <ul>
+                        <li><a href="https://sitefy.co/web-development-services/">Web Dev Services</a></li>
+                        <li><a href="https://sitefy.co/social-media-services/">Social Media Services</a></li>
+                        <li><a href="https://sitefy.co/marketing-consultancy">Marketing Consultancy</a></li>
+                        <li><a href="https://sitefy.co/bring-business-online/">Bring Local Business Online</a></li>
+                        <li><a href="https://sitefy.co/category/blog/">Blog</a></li>
+                        <li><a href="https://sitefy.co/faqs/">FAQs</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>CATEGORIES</h3>
+                    <ul>
+                        <li><a href="https://sitefy.co/product-category/best-selling/">Own Best Businesses</a></li>
+                        <li><a href="https://sitefy.co/dropshipping-websites-for-sale/">Readymade Dropshipping Stores</a></li>
+                        <li><a href="https://sitefy.co/dropshipping-niches/">All Dropshipping Niches</a></li>
+                        <li><a href="https://sitefy.co/product/readymade-blog-website/">Readymade Blog Website</a></li>
+                        <li><a href="https://sitefy.co/product-category/affiliate/">Autopilot Affiliate Websites</a></li>
+                        <li><a href="https://sitefy.co/product-category/marketplace/">Readymade Marketplace Websites</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>ABOUT</h3>
+                    <ul>
+                        <li><a href="https://sitefy.co/how-sitefy-works/">How Sitefy Works</a></li>
+                        <li><a href="https://sitefy.co/help-support/">Help & Support</a></li>
+                        <li><a href="https://sitefy.co/terms-of-service-2/">Terms of Service</a></li>
+                        <li><a href="https://sitefy.co/earnings-disclaimer/">Earnings Disclaimer</a></li>
+                        <li><a href="https://sitefy.co/privacy-policy-2/">Privacy Policy</a></li>
+                        <li><a href="https://sitefy.co/about-us/">About Us</a></li>
+                       <!--removed admin panel-->
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="social-links">
+                    <a href="https://www.facebook.com/sitefy/"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://twitter.com/sitefy_"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/sitefy_/"><i class="fab fa-instagram"></i></a>
+                    <a href="https://pinterest.com/sitefy"><i class="fab fa-pinterest"></i></a>
+                    <a href="https://www.linkedin.com/company/sitefy-co"><i class="fab fa-linkedin"></i></a>
+                </div>
+                <p>&copy; 2021-2025 | Sitefy | All rights reserved</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Mobile Navigation Toggle  
+    document.addEventListener('DOMContentLoaded', () => {
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        if (!hamburger || !navMenu) return;
+
+        const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+
+        const openMenu = (open) => {
+            const willOpen = typeof open === 'boolean' ? open : !navMenu.classList.contains('open');
+            navMenu.classList.toggle('open', willOpen);
+            hamburger.classList.toggle('active', willOpen);
+            document.body.classList.toggle('nav-open', willOpen);
+        };
+
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openMenu();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                openMenu(false);
+                document.querySelectorAll('.has-submenu.open, .nav-item.open').forEach(el => {
+                    el.classList.remove('open');
+                    const submenu = el.querySelector('.submenu, .dropdown-menu');
+                    if (submenu) submenu.style.maxHeight = null;
+                });
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (!isMobile()) openMenu(false);
+        });
+
+        // Mobile submenu toggles for any .has-submenu or .dropdown
+        navMenu.querySelectorAll('.has-submenu > a, .nav-item.dropdown > a').forEach(toggle => {
+            toggle.addEventListener('click', (ev) => {
+                if (!isMobile()) return;
+                ev.preventDefault();
+                const parent = toggle.closest('.has-submenu, .nav-item.dropdown');
+                if (!parent) return;
+
+                const submenu = parent.querySelector('.submenu, .dropdown-menu');
+                if (!submenu) return;
+
+                const wasOpen = parent.classList.contains('open');
+                
+                // Close siblings
+                if (parent.parentElement) {
+                    parent.parentElement.querySelectorAll('.open').forEach(sib => {
+                        if (sib !== parent) {
+                            sib.classList.remove('open');
+                            const sibSubmenu = sib.querySelector('.submenu, .dropdown-menu');
+                            if (sibSubmenu) sibSubmenu.style.maxHeight = null;
+                        }
+                    });
+                }
+
+                // Toggle current
+                parent.classList.toggle('open', !wasOpen);
+                if (!wasOpen) {
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                } else {
+                    submenu.style.maxHeight = null;
+                }
+            });
+        });
+    });
+
+    // Desktop Dropdown Positioning  
+    document.addEventListener('DOMContentLoaded', () => {
+        const isDesktop = () => window.matchMedia('(min-width: 769px)').matches;
+
+        // Function to position the main dropdown to fit in the viewport
+        const positionDropdown = (dropdown) => {
+            if (!isDesktop() || !dropdown) return;
+
+            // Reset position first
+            dropdown.style.marginTop = '';
+
+            const rect = dropdown.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+
+            if (rect.bottom > viewportHeight) {
+                const overflow = rect.bottom - viewportHeight;
+                // Add a little buffer (e.g., 10px)
+                dropdown.style.marginTop = `-${overflow + 10}px`;
+            }
+        };
+
+        const positionSubmenu = (submenu) => {
+            if (!isDesktop() || !submenu) return;
+            submenu.style.left = '100%';
+            submenu.style.right = 'auto';
+            const rect = submenu.getBoundingClientRect();
+            if (rect.right > window.innerWidth) {
+                submenu.style.left = 'auto';
+                submenu.style.right = '100%';
+            }
+        };
+
+        document.querySelectorAll('.nav-item.dropdown').forEach(item => {
+            const dropdown = item.querySelector('.dropdown-menu');
+            if (dropdown) {
+                item.addEventListener('mouseenter', () => positionDropdown(dropdown));
+            }
+        });
+
+        document.querySelectorAll('.has-submenu').forEach(item => {
+            const submenu = item.querySelector('.submenu');
+            if (submenu) {
+                item.addEventListener('mouseenter', () => positionSubmenu(submenu));
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -313,15 +313,27 @@ app.patch('/api/admin/reviews/:id', async (req, res) => {
 app.patch('/api/admin/reviews/:id/edit', async (req, res) => {
   try {
     const { id } = req.params;
-    const { project_name, tags } = req.body;
+    const { project_name, tags, created_at } = req.body;
+
+    const updatePayload = {
+      project_name: project_name,
+      tags: tags,
+      updated_at: new Date().toISOString()
+    };
+
+    // Optional: allow admins to edit created_at (date the review appears to be submitted)
+    if (created_at) {
+      const parsed = new Date(created_at);
+      if (isNaN(parsed.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid created_at value' });
+      }
+      // Store as ISO (UTC)
+      updatePayload.created_at = parsed.toISOString();
+    }
 
     const { data, error } = await supabase
       .from('reviews')
-      .update({
-        project_name: project_name,
-        tags: tags,
-        updated_at: new Date().toISOString()
-      })
+      .update(updatePayload)
       .eq('id', id)
       .select();
 

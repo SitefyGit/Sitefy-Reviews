@@ -25,6 +25,7 @@ A comprehensive review submission page for Sitefy.co that allows users to submit
 - **Content Management**: Admin can modify/edit approved reviews
 - **Tag Management**: Admin can hide/show or modify tags
 - **Rating Visibility**: Admin can control star rating visibility
+- **Edit Submission Date**: Admin can adjust a review's "Submitted At" date/time (stored in UTC)
 
 ### Technical Features
 - **Responsive Design**: Mobile-first approach with full tablet and desktop support
@@ -132,6 +133,9 @@ if (file.size > 50 * 1024 * 1024) {
 // Change duration limit (currently 60 seconds)
 if (this.duration > 60) {
 ```
+
+### Admin: Edit Review Date
+In the admin panel (`admin.html`), click Edit on any review to open the edit modal. Use the "Submitted At" field to change the review's date/time. The value is entered in your local timezone and saved to the database in UTC. This affects ordering and the displayed date on the public reviews list.
 
 ## Browser Support
 

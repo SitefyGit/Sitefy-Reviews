@@ -580,6 +580,19 @@
             const review = reviews.find(r => r.id === reviewId);
             if (!review) return;
             
+            // Helper to format ISO date to input[type=datetime-local] value (local time, no seconds)
+            const toDatetimeLocal = (isoString) => {
+                if (!isoString) return '';
+                const d = new Date(isoString);
+                const pad = (n) => String(n).padStart(2, '0');
+                const yyyy = d.getFullYear();
+                const mm = pad(d.getMonth() + 1);
+                const dd = pad(d.getDate());
+                const hh = pad(d.getHours());
+                const min = pad(d.getMinutes());
+                return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+            };
+
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
                 <div style="margin-bottom: 1rem;">
@@ -592,6 +605,13 @@
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Project Name:</label>
                         <input type="text" id="editProjectName" value="${escapeHtml(review.project_name)}" 
                                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Submitted At (local time):</label>
+                        <input type="datetime-local" id="editCreatedAt" value="${toDatetimeLocal(review.created_at)}"
+                               style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                        <small style="color:#6b7280;">This adjusts the review's public date. Saved in UTC.</small>
                     </div>
                     
                     <div>
@@ -623,12 +643,14 @@
             document.getElementById('editReviewForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const newProjectName = document.getElementById('editProjectName').value;
+                const createdAtLocal = document.getElementById('editCreatedAt').value; // yyyy-MM-ddTHH:mm in local time
+                const createdAtIso = createdAtLocal ? new Date(createdAtLocal).toISOString() : null;
                 const checkedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
                 try {
                     const response = await fetch(`/api/admin/reviews/${reviewId}/edit`, {
                         method: 'PATCH',
                         headers: getAdminHeaders(true),
-                        body: JSON.stringify({ project_name: newProjectName, tags: checkedTags })
+                        body: JSON.stringify({ project_name: newProjectName, tags: checkedTags, created_at: createdAtIso })
                     });
                     const result = await response.json();
                     if (result.success) {
